@@ -157,3 +157,60 @@ def log(text):
         return wrapper
     return decorator
 
+
+# 假设要转换大量的二进制字符串，每次都传入int(x, base=2)非常麻烦，于是，我们想到，可以定义一个int2()的函数，默认把base=2传进去
+# def int2(x, base=2):
+#     return int(x, base)
+# 这样，我们转换二进制就非常方便了：
+
+# >>> int2('1000000')
+# 64
+# >>> int2('1010101')
+# 85
+
+# functools.partial就是帮助我们创建一个偏函数的，不需要我们自己定义int2()，可以直接使用下面的代码创建一个新的函数int2：
+
+# >>> import functools
+# >>> int2 = functools.partial(int, base=2)
+# >>> int2('1000000')
+# 64
+# >>> int2('1010101')
+# 85
+# 所以，简单总结functools.partial的作用就是，把一个函数的某些参数给固定住（也就是设置默认值），返回一个新的函数，调用这个新函数会更简单。
+# 注意到上面的新的int2函数，仅仅是把base参数重新设定默认值为2，但也可以在函数调用时传入其他值：
+
+# >>> int2('1000000', base=10)
+# 1000000
+
+
+# 判断对象类型，使用type()函数判断对象类型，使用type()函数
+# 判断基本数据类型可以直接写int，str等，但如果要判断一个对象是否是函数怎么办？可以使用types模块中定义的常量：
+
+# isinstance()判断的是一个对象是否是该类型本身，或者位于该类型的父继承链上。
+
+# 可以判断一个变量是否是某些类型中的一种，比如下面的代码就可以判断是否是list或者tuple：
+# >>> isinstance([1, 2, 3], (list, tuple))
+# True
+# >>> isinstance((1, 2, 3), (list, tuple))
+# True
+
+# @property装饰器就是负责把一个方法变成属性调用的：
+class Student(object):
+    
+    @property
+    def score(self):
+        return self._score
+
+    @score.setter
+    def score(self, value):
+        if not isinstance(value, int):
+            raise ValueError('score must be an integer!')
+        if value < 0 or value > 100:
+            raise ValueError('score must between 0 ~ 100!')
+        self._score = value
+
+# 把一个getter方法变成属性，只需要加上@property就可以了，此时，@property本身又创建了另一个装饰器@score.setter，负责把一个setter方法变成属性赋值，于是，我们就拥有一个可控的属性操作：
+
+# 列出所有的.py文件
+[x for x in os.listdir('.') if os.path.isfile(x) and os.path.splitext(x)[1] == '.py']
+# ['apis.py', 'config.py', 'models.py', 'pymonitor.py', 'test_db.py', 'urls.py', 'wsgiapp.py']
