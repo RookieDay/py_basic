@@ -247,19 +247,29 @@ class Student(object):
 # from collections import OrderedDict
 
 # class LastUpdatedOrderedDict(OrderedDict):
-
-#     def __init__(self, capacity):
-#         super(LastUpdatedOrderedDict, self).__init__()
+#     def __init__(self,capacity):
+#         super(LastUpdatedOrderedDict,self).__init__()
 #         self._capacity = capacity
-
-#     def __setitem__(self, key, value):
+#     del __setitem__(self,key,value):
 #         containsKey = 1 if key in self else 0
 #         if len(self) - containsKey >= self._capacity:
 #             last = self.popitem(last=False)
-#             print('remove:', last)
+#             print('remove:',last)
 #         if containsKey:
 #             del self[key]
-#             print('set:', (key, value))
+#             print('set:',(key,value))
 #         else:
-#             print('add:', (key, value))
-#         OrderedDict.__setitem__(self, key, value)
+#             print('add:',(key,value))
+#         OrderedDict.__setitem__(self,key,value)
+
+
+# Counter是一个简单的计数器，例如，统计字符出现的个数：
+from collections import Counter
+c = Counter()
+for ch in 'programming':
+    c[ch] = c[ch] + 1
+
+# >>> c
+# Counter({'g': 2, 'm': 2, 'r': 2, 'a': 1, 'i': 1, 'o': 1, 'n': 1, 'p': 1})  
+
+# Base64是一种用64个字符来表示任意二进制数据的方法。
