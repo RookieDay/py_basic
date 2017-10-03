@@ -125,3 +125,71 @@ g: 5
 g: 8
 Generator return value: done
 
+
+
+凡是可作用于for循环的对象都是Iterable类型； 迭代器
+凡是可作用于next()函数的对象都是Iterator类型，它们表示一个惰性计算的序列； 生成器
+集合数据类型如list、dict、str等是Iterable但不是Iterator，不过可以通过iter()函数获得一个Iterator对象。
+
+
+str转为int
+from functools import reduce
+
+def str2int(s):
+    def fn(x, y):
+        return x * 10 + y
+    def char2num(s):
+        return {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9}[s]
+    return reduce(fn, map(char2num, s))
+
+还可以用lambda函数进一步简化成：
+from functools import reduce
+
+def char2num(s):
+    return {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9}[s]
+
+def str2int(s):
+    return reduce(lambda x, y: x * 10 + y, map(char2num, s))
+
+
+sorted()函数也是一个高阶函数，它还可以接收一个key函数来实现自定义的排序，例如按绝对值大小排序：
+>>> sorted([36, 5, -12, 9, -21], key=abs)
+[5, 9, -12, -21, 36]
+
+
+要进行反向排序，不必改动key函数，可以传入第三个参数reverse=True：
+>>> sorted(['bob', 'about', 'Zoo', 'Credit'], key=str.lower, reverse=True)
+['Zoo', 'Credit', 'bob', 'about']
+
+
+函数闭包引用循环变量：
+def count():
+    def f(j):
+        def g():
+            return j*j
+        return g
+    fs = []
+    for i in range(1, 4):
+        fs.append(f(i)) # f(i)立刻被执行，因此i的当前值被传入f()
+    return fs
+
+>>> f1, f2, f3 = count()
+>>> f1()
+1
+
+
+关键字lambda表示匿名函数，冒号前面的x表示函数参数。
+
+匿名函数有个限制，就是只能有一个表达式，不用写return，返回值就是该表达式的结果。
+
+用匿名函数有个好处，因为函数没有名字，不必担心函数名冲突。此外，匿名函数也是一个函数对象，也可以把匿名函数赋值给一个变量，再利用变量来调用该函数：
+>>> list(map(lambda x: x * x, [1, 2, 3, 4, 5, 6, 7, 8, 9]))
+[1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+通过对比可以看出，匿名函数lambda x: x * x实际上就是：
+def f(x):
+    return x * x
+
+
+装饰器：
+在代码运行期间动态增加功能的方式，称之为“装饰器”（Decorator）。
