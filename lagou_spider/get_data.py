@@ -1,5 +1,6 @@
 #!/usr/bin/env/ python
 # coding=utf-8
+# update code
 __author__ = 'zhaotingting'
 __Date__ = '20170927'
 import logging
@@ -29,11 +30,15 @@ def format_cn_str(cn_str):
     """
     cn_str_byte = cn_str.encode('utf-8')
     cn_str_index = str(cn_str_byte).replace(r'\x', '%').replace(r"'", "")
+    print('index: ' + cn_str_index)
     cn_str_index = re.sub('^b', '', cn_str_index)
-    return cn_str_index
+    s = urllib.quote(cn_str)
+    print(':: ' + s)
+    print ('::::' + cn_str_index)
+    return s
 
 
-def lagou_spider_keyword(position_key='', city_key='', district_key='', px='new', result_file_name=''):
+def lagou_spider_keyword(position_key='', city_key='', district_key='', px='default', result_file_name=''):
     """
         获取拉钩的职位信息
     :param position_key: 职位关键字
@@ -41,9 +46,11 @@ def lagou_spider_keyword(position_key='', city_key='', district_key='', px='new'
     :param district: 地区关键字
     :return:
     """
+
     kd = format_cn_str(position_key)
     city = format_cn_str(city_key)
     district = format_cn_str(district_key)
+    print(city)
     # 所有页面
     totalPageCount = 0
     # 当前页面
@@ -61,10 +68,11 @@ def lagou_spider_keyword(position_key='', city_key='', district_key='', px='new'
     url = ('https://www.lagou.com/jobs/positionAjax.json?px=' + px + '&city=' + city + '&district=' + district +
           '&needAddtionalResult=false&isSchoolJob=0')
     print(url)
+    print('https://www.lagou.com/jobs/list_' + kd + '?px=' + px + '&city=' + city + '&district=' + district)
     init_param = {
         'first': 'true',
         'pn': 1,
-        'kd': kd
+        'kd': position_key
     }
     data = urllib.urlencode(init_param)
     req = urllib2.Request(url, data=data, headers=headers)
@@ -81,7 +89,7 @@ def lagou_spider_keyword(position_key='', city_key='', district_key='', px='new'
         param = {
             'first': 'true',
             'pn': i,
-            'kd': kd
+            'kd': position_key
         }
         data = urllib.urlencode(param)
         req = urllib2.Request(url, data=data, headers=headers)
@@ -118,9 +126,6 @@ if __name__ == '__main__':
                   'businessZones@firstType@companyFullName@jobdescription')
 
     result_file_name = _gv.SPIDER_PARAM['result_file_name']
-    # result_file = open(result_file_name, 'w')
-    # result_file.write(raw_string)
-    # result_file.write('\n')
     #
     file_obj = open(result_file_name, 'wb')
     file_obj.write(codecs.BOM_UTF8)     # 防止乱码

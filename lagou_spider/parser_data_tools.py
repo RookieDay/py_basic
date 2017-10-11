@@ -2,7 +2,7 @@
 # coding=utf-8
 __author__ = 'zhaotingting'
 __Date__ = '20170929'
-
+# update code
 import json
 import csv
 import codecs
@@ -89,47 +89,47 @@ def parse_result_data(raw_data, result_file_name):
                         if 'district' in result and result['district']:
                             district = result['district']
                         else:
-                            district = ''
+                            district = ' '
                         if 'companyLabelList' in result and result['companyLabelList']:
                             companyLabelList = ",".join(result['companyLabelList'])
                         else:
-                            companyLabelList = ''
+                            companyLabelList = ' '
                         if 'positionLables' in result and result['positionLables']:
                             positionLables = ",".join(result['positionLables'])
                         else:
-                            positionLables = ''
+                            positionLables = ' '
                         if 'industryLables' in result and result['industryLables']:
                             industryLables = "".join(result['industryLables'])
                         else:
-                            industryLables = ''
+                            industryLables = ' '
                         if 'businessZones' in result and result['businessZones']:
                             businessZones = "".join(result['businessZones'])
                         else:
-                            businessZones = ''
+                            businessZones = ' '
                         if 'companyFullName' in result and result['companyFullName']:
                             companyFullName = result['companyFullName']
                         else:
-                            companyFullName = ''
+                            companyFullName = ' '
                         if 'financeStage' in result and result['financeStage']:
                             financeStage = result['financeStage']
                         else:
-                            financeStage = ''
+                            financeStage = ' '
                         if 'companyShortName' in result and result['companyShortName']:
                             companyShortName = result['companyShortName']
                         else:
-                            companyShortName = ''
+                            companyShortName = ' '
                         if 'createTime' in result and result['createTime']:
                             createTime = result['createTime']
                         else:
-                            createTime = ''
+                            createTime = ' '
                         if 'positionName' in result and result['positionName']:
                             positionName = result['positionName']
                         else:
-                            positionName = ''
+                            positionName = ' '
                         if 'education' in result and result['education']:
                             education = result['education']
                         else:
-                            education = ''
+                            education = ' '
                         if 'city' in result and result['city']:
                             city = result['city']
                         else:
@@ -137,31 +137,31 @@ def parse_result_data(raw_data, result_file_name):
                         if 'salary' in result and result['salary']:
                             salary = result['salary']
                         else:
-                            salary = ''
+                            salary = ' '
                         if 'industryField' in result and result['industryField']:
                             industryField = result['industryField']
                         else:
-                            industryField = ''
+                            industryField = ' '
                         if 'positionAdvantage' in result and result['positionAdvantage']:
                             positionAdvantage = result['positionAdvantage']
                         else:
-                            positionAdvantage = ''
+                            positionAdvantage = ' '
                         if 'jobNature' in result and result['jobNature']:
                             jobNature = result['jobNature']
                         else:
-                            jobNature = ''
+                            jobNature = ' '
                         if 'workYear' in result and result['workYear']:
                             workYear = result['workYear']
                         else:
-                            workYear = ''
+                            workYear = ' '
                         if 'companySize' in result and result['companySize']:
                             companySize = result['companySize']
                         else:
-                            companySize = ''
+                            companySize = ' '
                         if 'firstType' in result and result['firstType']:
                             firstType = result['firstType']
                         else:
-                            firstType = ''
+                            firstType = ' '
                         try:
                             file_result_data = (financeStage + '@' + companyShortName + '@' + createTime + '@'
                                                 + positionName + '@'+ education + '@'+ city + '@'
@@ -172,12 +172,8 @@ def parse_result_data(raw_data, result_file_name):
                                                 + companyFullName + '@' + str(job_description))
                         except Exception, e:
                             logging.error(str(result))
-                        # print job_description
-                        print file_result_data
-                        # result_file.write(file_result_data)
-                        # result_file.write('\n')
                         writer.writerow(file_result_data.split('@'))
-                        time.sleep(2)
+                        time.sleep(3)
     file_obj.close()
     return results_num
 

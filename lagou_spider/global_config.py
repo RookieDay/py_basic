@@ -2,7 +2,7 @@
 # coding=utf-8
 __author__ = 'zhaotingting'
 __Date__ = '20170927'
-
+# update code
 # 爬取的数据保存的文件
 result_file_name = 'data_analysis.csv'
 
