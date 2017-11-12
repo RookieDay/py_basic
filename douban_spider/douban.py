@@ -10,9 +10,9 @@
 # https://zhuanlan.zhihu.com/p/20423182
 
 
-import requests
+import requests,codecs,os
 from bs4 import BeautifulSoup
-URL = 'https://movie.douban.com/top250'
+Origin_URL = 'https://movie.douban.com/top250'
 
 def download_html(URL):
     # 产生403的原因，一般可能是因为需要登录的网站没有登录或者被服务器认为是爬虫而拒绝访问，这里很显然属于第二种情况。
@@ -29,11 +29,24 @@ def download_html(URL):
 def parse_html(html):
     soup = BeautifulSoup(html, "lxml")
     movie_list = soup.find('ol', attrs={'class':'grid_view'})
+    movie_name_list = []
     for movie_li in movie_list.find_all('li'):
         detail = movie_li.find('div',attrs={'class':'hd'})
         movie_name = movie_li.find('span',attrs={'class':'title'}).getText()
-        print(movie_name)
+        movie_name_list.append(movie_name)
+    next_page = soup.find('span',attrs={'class':'next'}).find('a')
+    if next_page:
+        return movie_name_list,Origin_URL + next_page['href']
+    return movie_name_list,None
+
 
 if __name__ == '__main__':
-    html = download_html(URL)
-    parse_html(html)
+    URL = Origin_URL
+    out_txt = os.path.join(os.path.dirname(__file__),'movies.txt')
+    with open(out_txt,'w') as f:
+        while URL:
+            html = download_html(URL)
+            movies, URL = parse_html(html)
+            # print(', '.join(movies), '  ' , URL)
+            f.write(', '.join(movies))
+            f.write('\n')
