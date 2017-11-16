@@ -19,6 +19,11 @@ db = conn.ana
 #  {"name":'张三2','province':'浙江2','age':26},
 #  {"name":'张三3','province':'浙江3','age':28},
 # ])
+db.msk.insert({'name':'gl','age':11,'sex':'female'})
+db.msk.insert([
+ {"name":'yanying','province':'江苏','age':25},
+ {"name":'张三','province':'浙江','age':24}
+])
 
 # print(db.col.find_one())
 for item in db.col.find():
