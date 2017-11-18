@@ -10,5 +10,7 @@
 # by http://blog.csdn.net/wangsidadehao/article/details/52911746
 
 from scrapy import cmdline
-cmdline.execute('scrapy crawl author'.split())
+cmdline.execute('scrapy crawl quotes-xpath -o quptes-xpath.jl'.split())
+# cmdline.execute('scrapy crawl tag -o quptes-humor.jl -a tag=humor'.split())
+# cmdline.execute('scrapy crawl author'.split())
 #  cmdline.execute('scrapy crawl quotes'.split())

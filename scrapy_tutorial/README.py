@@ -158,7 +158,18 @@ print(os.path.dirname(__file__) + '/1.html')
 # for href in response.css('li.next a::attr(href)'):
 #     yield response.follow(href, callback=self.parse)
 
-# For <a> elements there is a shortcut: response.follow uses their href attribute automatically. So the code can be shortened further:
+# For <a> elements there is a shortcut: response.follow uses their href attribute automatically.
+# So the code can be shortened further:
 # response.follow 会默认使用a标签的herf属性，所以代码继续精简
 # for a in response.css('li.next a'):
 #     yield response.follow(a, callback=self.parse)
+
+# response.follow(response.css('li.next a')) is not valid because response.css returns a
+# list-like object with selectors for all results, not a single selector. A for loop like
+# in the example above, or response.follow(response.css('li.next a')[0]) is fine.
+
+# Using spider arguments
+# You can provide command line arguments to your spiders by using the -a option when running them:
+# scrapy crawl quotes -o quotes-humor.json -a tag=humor
+# These arguments are passed to the Spider’s __init__ method and become spider attributes by default.
+
