@@ -64,3 +64,101 @@
 
 import os
 print(os.path.dirname(__file__) + '/1.html')
+
+# scrapy shell
+
+# scrapy shell <url>
+# scrapy shell 'http://quotes.toscrape.com/page/1/'
+# windows下面必须使用双引号
+# scrapy shell "http://quotes.toscrape.com/page/1/"
+# >>> response.css('title') 返回的是一个选择器列表
+# [<Selector xpath='descendant-or-self::title' data='<title>Quotes to Scrape</title>'>]
+
+# >>> response.css('title::text').extract()  ::text代表可以选择title元素的text文本
+# ['Quotes to Scrape']
+
+# >>> response.css('title').extract()  如果没有::text 我们获得是 full title element, including its tags
+# ['<title>Quotes to Scrape</title>']
+
+# >>> response.css('title::text').extract_first()   .extract() is a list,返回的是一个list  .extract_first() 只会返回第一个结果
+# 'Quotes to Scrape'
+# 类似下面这样的情况
+# >>> response.css('title::text')[0].extract()
+# 'Quotes to Scrape'
+# Remark: .extract_first() avoids an IndexError and returns None when it doesn’t find any element matching the selection.
+
+# 也支持re() method
+# >>> response.css('title::text').re(r'Quotes.*')
+# ['Quotes to Scrape']
+# >>> response.css('title::text').re(r'Q\w+')
+# ['Quotes']
+# >>> response.css('title::text').re(r'(\w+) to (\w+)')
+# ['Quotes', 'Scrape']
+
+
+# xpath
+# 表达式	    描述
+# nodename	选取此节点的所有子节点。
+# /	        从根节点选取。
+# //	        从匹配选择的当前节点选择文档中的节点，而不考虑它们的位置。
+# .	        选取当前节点。
+# ..	        选取当前节点的父节点。
+# @	        选取属性。
+
+
+# 路径表达式	                                结果
+# /bookstore/book[1]	                    选取属于 bookstore 子元素的第一个 book 元素。
+# /bookstore/book[last()]	                选取属于 bookstore 子元素的最后一个 book 元素。
+# /bookstore/book[last()-1]	            选取属于 bookstore 子元素的倒数第二个 book 元素。
+# /bookstore/book[position()<3]	        选取最前面的两个属于 bookstore 元素的子元素的 book 元素。
+# //title[@lang]	                        选取所有拥有名为 lang 的属性的 title 元素。
+# //title[@lang='eng']	                选取所有 title 元素，且这些元素拥有值为 eng 的 lang 属性。
+# /bookstore/book[price>35.00]	        选取 bookstore 元素的所有 book 元素，且其中的 price 元素的值须大于 35.00。
+# /bookstore/book[price>35.00]/title	    选取 bookstore 元素中的 book 元素的所有 title 元素，且其中的 price 元素的值须大于 35.00。
+
+#
+# 通配符	    描述
+# *	        匹配任何元素节点。
+# @*	        匹配任何属性节点。
+# node()	    匹配任何类型的节点。
+#
+# 路径表达式	                              结果
+# //book/title | //book/price	        选取 book 元素的所有 title 和 price 元素。
+# //title | //price	                    选取文档中的所有 title 和 price 元素。
+# /bookstore/book/title | //price	    选取属于 bookstore 元素的 book 元素的所有 title 元素，以及文档中所有的 price 元素。
+
+# >>> response.xpath('//title')
+# [<Selector xpath='//title' data='<title>Quotes to Scrape</title>'>]
+# >>> response.xpath('//title/text()').extract_first()
+# 'Quotes to Scrape'
+
+
+# cmd下输入  by http://jsonlines.org/
+# 1. That will generate an quotes.json file containing all scraped items, serialized in JSON.
+# scrapy crawl quotes -o quotes.json
+# 2. You can also used other formats, like JSON Lines:
+# scrapy crawl quotes -o quotes.jl
+
+# urljoin 使用请求的绝对路径
+# next_page = response.css('li.next a::attr(href)').extract_first()
+#         if next_page is not None:
+#             next_page = response.urljoin(next_page)
+#             yield scrapy.Request(next_page, callback=self.parse)
+
+
+# response.follow 可以使用请求的相对路径
+# response.follow just returns a Request instance; you still have to yield this Request.
+# next_page = response.css('li.next a::attr(href)').extract_first()
+# if next_page is not None:
+#     yield response.follow(next_page, callback=self.parse)
+
+# 你也可以给response.follow传递一个选择器而不是字符串
+# You can also pass a selector to response.follow instead of a string; this selector should extract necessary attributes:
+#
+# for href in response.css('li.next a::attr(href)'):
+#     yield response.follow(href, callback=self.parse)
+
+# For <a> elements there is a shortcut: response.follow uses their href attribute automatically. So the code can be shortened further:
+# response.follow 会默认使用a标签的herf属性，所以代码继续精简
+# for a in response.css('li.next a'):
+#     yield response.follow(a, callback=self.parse)
