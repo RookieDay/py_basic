@@ -173,3 +173,80 @@ print(os.path.dirname(__file__) + '/1.html')
 # scrapy crawl quotes -o quotes-humor.json -a tag=humor
 # These arguments are passed to the Spider’s __init__ method and become spider attributes by default.
 
+
+# Command line tool
+# Global commands:
+# startproject/genspider/settings/runspider/shell/fetch/view/version
+
+# Project-only commands:crawl/check/list/edit/parse/bench
+
+# scrapy startproject <project_name> [project_dir]  If project_dir wasn’t specified, project_dir will be the same as project_name.
+# scrapy genspider [-t template] <name> <domain>
+
+# scrapy crawl <spider>  Start crawling using a spider.
+# scrapy check [-l] <spider> Run contract checks.
+# scrapy list List all available spiders in the current project. The output is one spider per line.
+# scrapy edit <spider> Edit the given spider using the editor defined in the EDITOR environment variable or (if unset) the EDITOR setting.
+
+# scrapy fetch <url> Downloads the given URL using the Scrapy downloader and writes the contents to standard output.
+# Supported options:
+# --spider=SPIDER: bypass spider autodetection and force use of specific spider
+# --headers: print the response’s HTTP headers instead of the response’s body
+# --no-redirect: do not follow HTTP 3xx redirects (default is to follow them)
+# >scrapy fetch --nolog --headers http://quotes.toscrape.com/page/1/
+
+# scrapy view <url>
+# Opens the given URL in a browser, as your Scrapy spider would “see” it. Sometimes spiders see pages differently from regular users, so this can be used to check what the spider “sees” and confirm it’s what you expect.
+# Supported options:
+# --spider=SPIDER: bypass spider autodetection and force use of specific spider
+# --no-redirect: do not follow HTTP 3xx redirects (default is to follow them)
+
+# scrapy shell [url] Starts the Scrapy shell for the given URL (if given) or empty if no URL is given. Also supports UNIX-style local file paths, either relative with ./ or ../ prefixes or absolute file paths. See Scrapy shell for more info.
+# Supported options:
+# --spider=SPIDER: bypass spider autodetection and force use of specific spider
+# -c code: evaluate the code in the shell, print the result and exit
+# --no-redirect: do not follow HTTP 3xx redirects (default is to follow them); this only affects the URL you may pass as argument on the command line; once you are inside the shell, fetch(url) will still follow HTTP redirects by default.
+# scrapy shell --nolog http://www.example.com/ -c "(response.status, response.url)"
+
+# scrapy parse <url> [options] Fetches the given URL and parses it with the spider that handles it, using the method passed with the --callback option, or parse if not given.
+# Supported options:
+# --spider=SPIDER: bypass spider autodetection and force use of specific spider
+# --a NAME=VALUE: set spider argument (may be repeated)
+# --callback or -c: spider method to use as callback for parsing the response
+# --pipelines: process items through pipelines
+# --rules or -r: use CrawlSpider rules to discover the callback (i.e. spider method) to use for parsing the response
+# --noitems: don’t show scraped items
+# --nolinks: don’t show extracted links
+# --nocolour: avoid using pygments to colorize the output
+# --depth or -d: depth level for which the requests should be followed recursively (default: 1)
+# --verbose or -v: display information for each depth level
+
+
+# scrapy settings [options] Get the value of a Scrapy setting.
+# $ scrapy settings --get BOT_NAME
+# scrapybot
+# $ scrapy settings --get DOWNLOAD_DELAY
+# 0
+
+
+# scrapy runspider <spider_file.py> Run a spider self-contained in a Python file, without having to create a project.
+# scrapy version [-v] Prints the Scrapy version. If used with -v it also prints Python, Twisted and Platform info, which is useful for bug reports.
+# scrapy bench ---> Run a quick benchmark test. Benchmarking.
+
+# Custom project commands
+# You can also add your custom project commands by using the COMMANDS_MODULE setting. See the Scrapy commands in
+# scrapy/commands for examples on how to implement your commands.
+
+
+# scrapy selector
+# >>> from scrapy.selector import Selector
+# >>> from scrapy.http import HtmlResponse
+
+# scrapy shell http://doc.scrapy.org/en/latest/_static/selectors-sample1.html
+# response.selector.xpath('//title/text()')
+# Querying responses using XPath and CSS is so common that responses include two convenience shortcuts: response.xpath() and response.css():
+# response.xpath('//title/text()') / response.css('title::text')
+# response.css('img').xpath('@src').extract()
+
+# response.xpath('//div[@id="not-exists"]/text()').extract_first() is None
+# response.xpath('//div[@id="not-exists"]/text()').extract_first(default='not-found')
