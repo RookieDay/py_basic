@@ -6,15 +6,39 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import json
+import pymongo
 class ScrapyTutorialPipeline(object):
+    # def open_spider(self, spider):
+    #     self.file = open('ana_items.jl', 'w')
+    #
+    # def close_spider(self, spider):
+    #     self.file.close()
+    #
+    # def process_item(self, item, spider):
+    #     line = json.dumps(dict(item)) + "\n"
+    #     self.file.write(line)
+    #     return item
+
+    def __init__(self, mongo_uri, mongo_db,mongo_col):
+        self.mongo_uri = mongo_uri
+        self.mongo_db = mongo_db
+        self.mongo_col = mongo_col
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            mongo_uri=crawler.settings.get('MONGO_URI'),
+            mongo_db=crawler.settings.get('MONGODB_DB'),
+            mongo_col=crawler.settings.get('MONGODB_COLLECTION')
+        )
+
     def open_spider(self, spider):
-        self.file = open('ana_items.jl', 'w')
+        self.client = pymongo.MongoClient(self.mongo_uri)
+        self.db = self.client[self.mongo_db]
 
     def close_spider(self, spider):
-        self.file.close()
+        self.client.close()
 
     def process_item(self, item, spider):
-        line = json.dumps(dict(item)) + "\n"
-        self.file.write(line)
+        self.db[self.mongo_col].insert_one(dict(item))
         return item
-

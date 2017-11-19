@@ -68,6 +68,11 @@ ITEM_PIPELINES = {
    'scrapy_tutorial.pipelines.ScrapyTutorialPipeline': 300,
 }
 
+MONGODB_SERVER = "localhost"
+MONGODB_PORT = 27017
+MONGODB_DB = "ana_web"
+MONGODB_COLLECTION = "scrapy"
+
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
 #AUTOTHROTTLE_ENABLED = True
