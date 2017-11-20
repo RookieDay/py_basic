@@ -250,3 +250,16 @@ print(os.path.dirname(__file__) + '/1.html')
 
 # response.xpath('//div[@id="not-exists"]/text()').extract_first() is None
 # response.xpath('//div[@id="not-exists"]/text()').extract_first(default='not-found')
+
+
+# itemloader by http://blog.csdn.net/ahri_j/article/details/72466231
+# 通过之前的学习，已经知道网页的基本解析流程就是先通过 css/xpath 方法进行解析，然后再把值封装到 Item 中，如果有特殊需要的话还要对解析到的数据进行转换处理，这样当解析代码或者数据转换要求过多的时候，会导致代码量变得极为庞大，从而降低了可维护性。同时在 sipider 中编写过多的数据处理代码某种程度上也违背了单一职责的代码设计原则。我们需要使用一种更加简洁的方式来获取与处理网页数据，ItemLoader 就是用来完成这件事情的。
+#
+# ItemLoader 类位于 scrapy.loader ，它可以接收一个 Item 实例来指定要加载的 Item, 然后指定 response 或者 selector 来确定要解析的内容，最后提供了 add_css()、 add_xpath() 方法来对通过 css 、 xpath 解析赋值，还有 add_value() 方法来单独进行赋值。
+# 在 ItemLoader 类中，提供了 default_output_processor 和 default_input_processor 来对数据的输入与输出进行解析，
+# 如果我们需要只获取解析后的第一个值，可以指定 default_output_processor 为 TakeFirst() 即可，这是 Scrapy 提供的一个解析处理类，
+# scrapy 提供 的 MapCompose 方法允许我们指定一系列的处理方法，Scrapy 会将 解析到的 list 中的值依次传递到每个方法中对值进行处理
+#
+# 首先定义一个 ItemLoader 类同时指定通用的 input/output 处理方法，然后在 parse 方法中声明 ItemLoader ，传递 Item 实例 和 response/selector。 通过 ItemLoader 的 add_css/add_xpath/add_value 来进行赋值。
+# 如果对数据有特殊的处理，就在 Item 类的 Field 中传递 input_processor 和 output_processor 来指定处理函数，来完成整个数据的解析和处理。
+#

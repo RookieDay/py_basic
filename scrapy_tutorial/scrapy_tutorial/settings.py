@@ -66,6 +66,9 @@ ROBOTSTXT_OBEY = True
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'scrapy_tutorial.pipelines.ScrapyTutorialPipeline': 300,
+   'scrapy_tutorial.pipelines.JsonWriterPipeline': 500,
+   'scrapy_tutorial.pipelines.JsonExporterPipeline': 800,
+   'scrapy_tutorial.pipelines.DuplicatesPipeline': 1000,
 }
 
 MONGODB_SERVER = "localhost"

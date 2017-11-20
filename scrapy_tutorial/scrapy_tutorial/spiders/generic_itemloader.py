@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time    : 2017/11/19
+# @Time    : 2017/11/20
 # @Author  : RookieDay
 # @Site    : 
-# @File    : generic_spider
+# @File    : generic_itemloader
 # @Github  : https://github.com/rookieday
 # @Software: PyCharm Community Edition
 
+
 import scrapy
 from scrapy_tutorial.items import ScrapyTutorialItem
+from scrapy.loader import ItemLoader
 
-class AuthorSpider(scrapy.Spider):
-    name = 'generic'
+class GenericSpider(scrapy.Spider):
+    name = 'genericLoader'
     start_urls = ['http://quotes.toscrape.com/']
 
     def parse(self, response):
@@ -24,12 +26,13 @@ class AuthorSpider(scrapy.Spider):
 
     def parse_author(self,response):
         self.logger.info('Hi, this is an item page! %s', response.url)
-        item = ScrapyTutorialItem()
-
+        item = ItemLoader(item = ScrapyTutorialItem(),response=response)
         def extract_with_css(query):
             return response.css(query).extract()
 
-        item['name'] = extract_with_css('h3.author-title::text')
-        item['birthdate'] = extract_with_css('.author-born-date::text')
-        item['bio'] = extract_with_css('.author-description::text')
-        yield item
+        item.add_css('name','h3.author-title::text')
+        item.add_css('birthdate','.author-born-date::text')
+        item.add_css('bio','.author-description::text')
+        item.add_value('arrtest',['a','b','c'])
+        item.add_value('url',response.url)
+        yield item.load_item()
