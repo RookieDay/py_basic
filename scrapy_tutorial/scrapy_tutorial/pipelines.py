@@ -74,7 +74,7 @@ class JsonExporterPipeline(object):
         self.file = open('questions_exporter.json', 'wb')
         # 初始化 exporter 实例，执行输出的文件和编码
         self.exporter = JsonItemExporter(self.file,encoding='utf-8',ensure_ascii=False)
-        # 开启倒数
+        # 开启导出
         self.exporter.start_exporting()
 
     def close_spider(self, spider):

@@ -27,9 +27,6 @@ class GenericSpider(scrapy.Spider):
     def parse_author(self,response):
         self.logger.info('Hi, this is an item page! %s', response.url)
         item = ItemLoader(item = ScrapyTutorialItem(),response=response)
-        def extract_with_css(query):
-            return response.css(query).extract()
-
         item.add_css('name','h3.author-title::text')
         item.add_css('birthdate','.author-born-date::text')
         item.add_css('bio','.author-description::text')
