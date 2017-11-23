@@ -6,7 +6,8 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
-
+import random,base64
+from .settings import PROXIES
 
 class ScrapyDownloadSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
@@ -54,3 +55,36 @@ class ScrapyDownloadSpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+# by https://www.cnblogs.com/wzjbg/p/6507581.html
+class RandomUserAgent(object):
+    def __init__(self,agents=''):
+        self.agents = agents
+
+    @classmethod
+    def from_crawler(cls,crawler):
+        return cls(
+            crawler.settings.getlist('USER_AGENT')
+        )
+    def process_request(self,request,spider):
+        request.headers.setdefault('USER_AGENT',random.choice(self.agents))
+
+class ProxyMiddleware(object):
+    def process_request(self,request,spider):
+        proxy = random.choice(PROXIES)
+        # if proxy['user_pass'] is not None:
+        #     request.meta['proxy'] = "http://%s" % proxy['ip_port']
+        #     # 对代理数据进行base64编码
+        #     encoded_user_pass = base64.encodebytes(proxy['user_pass'])
+        #     # 添加到HTTP代理格式里
+        #     request.headers['Proxy-Authorization'] = 'Basic ' + encoded_user_pass
+        # else:
+        print("****代理****" + proxy['ip_port'])
+        request.meta['proxy'] = "http://%s" % proxy['ip_port']
+
+class ImageMiddleware(object):
+    def process_request(self,request,spider):
+        refer = request.meta.get('referer',None)
+        if refer:
+            request.headers['referer'] = refer

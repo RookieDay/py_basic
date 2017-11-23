@@ -25,7 +25,8 @@ class Download_Img(CrawlSpider):
     def parse_item(self, response):
         item = ScrapyDownloadItem()
         item['url'] = response.url
-        print('b'*39,response.url)
+        item['name'] = response.xpath('//div[@class="crumbs"]/span/a[last()]/text()').extract_first(default="N/A")
+        print('*'*11,item)
         yield Request(response.url, callback=self.img_url,dont_filter=True)
         item['image_urls'] = self.image_urls
         yield item

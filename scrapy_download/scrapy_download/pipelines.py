@@ -14,6 +14,12 @@ class ScrapyDownloadPipeline(object):
         return item
 
 class ImageDownloadPipeline(ImagesPipeline):
+    def file_path(self, request, response=None, info=None):
+        item = request.meta['item']
+        folder_name = str.strip(item['name'])
+        image_guid = request.url.split('/')[-1]
+        filename = u'full/{0}/{1}'.format(folder_name, image_guid)
+        return filename
 
     def get_media_requests(self, item, info):
         for img_url in item['image_urls']:
