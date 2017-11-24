@@ -35,7 +35,7 @@ class ZhihuUserPipeline(object):
         return item
 
 class ImagePipelines(ImagesPipeline):
-    def get_medit_requests(self,item,info):
+    def get_media_requests(self,item,info):
         for img_url in item['image_urls']:
             yield Request(img_url)
 
