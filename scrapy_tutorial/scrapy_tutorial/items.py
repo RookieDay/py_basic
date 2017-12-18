@@ -7,7 +7,7 @@
 
 import scrapy
 from scrapy.loader.processors import TakeFirst, MapCompose, Join
-
+from scrapy import Field,Item
 
 # 对应generic_spider.py
 # class ScrapyTutorialItem(scrapy.Item):

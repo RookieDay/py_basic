@@ -9,7 +9,7 @@
 
 import scrapy
 from scrapy_tutorial.items import ScrapyTutorialItem
-
+from ..items import ScrapyTutorialItem
 class AuthorSpider(scrapy.Spider):
     name = 'generic'
     start_urls = ['http://quotes.toscrape.com/']
