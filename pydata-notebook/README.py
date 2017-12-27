@@ -156,3 +156,117 @@ hash(1, 2, [2, 3]) # 失败，因为list是可变的
 # {1, 2, 3, 4}
 
 # a.union(b) /  a.intersection(b) /a & b
+
+
+strings = ['a', 'as', 'bat', 'car', 'dove', 'python']
+loc_mapping = {val: index for index, val in enumerate(strings)}
+# 输出：{'a': 0, 'as': 1, 'bat': 2, 'car': 3, 'dove': 4, 'python': 5}
+
+
+some_tuples = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+flattened = [x for tup in some_tuples for x in tup]
+# flattened [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+# || 等价于
+flatteded = []
+
+for tup in some_tuples:
+    for x in tup:
+        flattened.append(x)
+
+
+# 列表表达式里再有一个列表表达式也是可以的，可以生成a list of lists：
+[[x for x in tup] for tup in some_tuples]
+# [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+
+# 按不同字母的数量给一组string排序
+strings = ['foo', 'card', 'bar', 'aaaa', 'abab']
+strings.sort(key=lambda x:len(set(list(x))))
+
+# 柯里化（Currying）是把接受多个参数的函数变换成接受一个单一参数(最初函数的第一个参数)的函数，并且返回接受余下的参数且返回结果的新函数的技术。
+# 简单的说，通过局部参数应用，在一个原有函数的基础上，构造一个新的函数。
+def add_number(x, y):
+    return x + y
+
+# 通过上面这个函数，我们可以衍生出一个只需要一个参数的新方程，add_five，即把5加到参数上：
+add_five = lambda y: add_number(5, y)
+
+# 其中第二个参数y叫做被柯里化了。这其实没什么特别的，我们做的其实就是用一个已有的函数定义了一个新函数。而内建的functools模块里的partial函数能简化这个操作
+from functools import partial
+add_five = partial(add_number, 5)
+
+
+# 生成器是用于构造迭代对象的简洁方式。不像其他函数一口气执行完，返回一个结果，生成器是多次返回一个序列，每请求一次，才会返回一个。用yield可以构建一个生成器
+def squares(n=10):
+    print('Generating squares from 1 to {0}'.format(n**2))
+    for i in range(1, n+1):
+        yield i ** 2
+gen = squares()
+for x in gen:
+    print(x, end=' ')
+
+# 另一个构造生成器的方式是利用生成器表达式。写法就像列表表达式一样，只不过使用括号：
+gen = (x ** 2 for x in range(100))
+def _make_gen():
+    for x in range(100):
+        yield x ** 2
+gen = _make_gen()
+
+# 生成器表达式还能作为函数的参数，而列表表达式不能作为函数的参数：
+sum( x ** 2 for x in range(100))
+dict((i, i**2) for i in range(5))
+#输出： {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+
+
+# itertools module¶
+
+# 异常处理
+# f = open(path, 'w')
+#
+# try:
+#     write_to_file(f)
+# except:
+#     print('Failed')
+# else:
+#     print('Succeeded')
+# finally:
+#     f.close()
+
+
+# 没有参数代表去除  两边 左边 右边的空格
+# strip() 去除两端 如果传入了字符，会将字符串两边的字符都去掉
+# lstrip() 去除左边 如果传入了字符，会将字符串左边的字符都去掉
+# rstrip() 去除右边 如果传入了字符，会将字符串右边的字符都去掉
+
+# 字符串，那些你不知道的事
+# http://liujiacai.net/blog/2015/11/20/strings/
+
+# np.empty并不能保证返回所有是0的数组，某些情况下，会返回为初始化的垃圾数值
+
+
+# arr2d[:2, 1:] # 前两行，第二列之后
+# arr2d[:2, 2]  #选中第三列的前两行
+# arr2d[:, :1] #冒号表示提取整个axis（轴）：
+
+# 用布尔索引总是会返回一份新创建的数据，原本的数据不会被改变
+names = np.array(['Bob', 'Joe', 'Will', 'Bob', 'Will', 'Joe', 'Joe'])
+
+data = np.random.randn(7, 4)
+# 假设每一个name对应data数组中的一行，我们想要选中name为'Bob'的所有行。就像四则运算，用比较运算符（==）
+data[names == 'Bob']
+# array([[ 0.02584271, -1.53529621,  0.73143988, -0.34086189],
+#        [-0.48632936,  0.63817756, -0.40792716, -1.48037389]])
+# 注意：布尔数组和data数组的长度要一样。
+# 我们可以选中names=='Bob'的行，然后索引列
+
+# Fancy Indexing(花式索引)¶
+arr = np.arange(32).reshape((8, 4))
+# 注意这里的括号
+# arr[[1, 5, 7, 2], [0, 3, 1, 2]]
+# -->array([ 4, 23, 29, 10])
+# 可以看到[ 4, 23, 29, 10]分别对应(1, 0), (5, 3), (7, 1), (2, 2)。不论数组有多少维，fancy indexing的结果总是一维
+# arr[[1, 5, 7, 2]][:, [0, 3, 1, 2]] ， 先从arr中选出[1, 5, 7, 2]这四行，然后[:, [0, 3, 1, 2]]表示选中所有行，但是列的顺序要按0,3,1,2来排。
+
+# 转置 一个是transpose方法，一个是T属性
+# 对于多维数组，transpose会接受由轴数字组成的tuple，来交换轴
