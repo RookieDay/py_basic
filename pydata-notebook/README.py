@@ -270,3 +270,132 @@ arr = np.arange(32).reshape((8, 4))
 
 # 转置 一个是transpose方法，一个是T属性
 # 对于多维数组，transpose会接受由轴数字组成的tuple，来交换轴
+# arr = np.arange(16).reshape((2, 3, 4))
+# arr.shape -- (2,3,4) 对应索引(0,1,2)
+# arr.transpose((1,0,2)) 就会变为 x.shape -- (3,2,4)
+# arr.swapaxes(1, 2) # 原来shape(2,3,4)现在变为了(2,4,3) 只交换second axis和last axis swapaxes也是返回view，不生成新的data。
+
+
+# modf 函数 实现a除以b，然后返回商与余数的元组。如果两个参数a,b都是整数，那么会采用整数除法，结果相当于（a//b, a % b)。如果a或b是浮点数，相当于（math.floor(a/b), a%b)。
+# arr = np.random.randn(7)*5
+# remainder, whole_part = np.modf(arr)
+# whole_part
+
+# [X,Y] = meshgrid(x,y) 将向量x和y定义的区域转换成矩阵X和Y,其中矩阵X的行向量是向量x的简单复制，而矩阵Y的列向量是向量y的简单复制
+# 假设x是长度为m的向量，y是长度为n的向量，则最终生成的矩阵X和Y的维度都是 nm （注意不是mn）
+
+# numpy.where函数是一个向量版的三相表达式，x if condition else y
+# np.where中第二个和第三个参数不用必须是数组。where在数据分析中一个典型的用法是基于一个数组，产生一个新的数组值
+# 假设我们有一个随机数字生成的矩阵，我们想要把所有的正数变为2，所有的负数变为-2。用where的话会非常简单：
+# arr = np.random.randn(4, 4)
+# np.where(arr > 0, 2, -2)
+# 以结合标量和数组。比如只把整数变为2，其他仍未原来的数字
+# np.where(arr > 0, 2, arr) # set only positive value to 2
+
+
+# 一些能计算统计值的数学函数能基于整个数组，或者沿着一个axis（轴）。可以使用aggregations(often called reductions，汇总，或被叫做降维)，比如sum, mean, and std(标准差).
+# mean, sum这样的函数能接受axis作为参数来计算统计数字，返回的结果维度更少
+# arr.sum(axis=0) 计算各行总和
+# arr.mean(axis=1) 计算各列之间的平均值
+# arr.cumsum()  计算是一个累加的结果
+# arr.cumsum(axis=0) # 沿着行加法
+# arr.cumprod(axis=1) # 沿着列乘法
+
+# sum是用来计算布尔数组中有多少个true
+# (arr > 0).sum()
+# any检测数组中只要有一个ture返回就是true，而all检测数组中都是true才会返回true
+# bools = np.array([False, False, True, False])
+# bools.any()  true
+# bools.all()  false
+
+# 直接调用数组的sort方法，会改变原有数组的顺序。但如果使用np.sort()函数的话，会生成一个新的排序后的结果
+# arr = np.random.randn(5, 3)
+# arr.sort(1)
+
+# np.unique，能返回排好序且不重复的值
+# ints = np.array([3, 3, 3, 2, 2, 1, 1, 4, 4])
+# np.uniques(ints)
+# python 实现sorted(set(names))
+
+# np.in1d, 测试一个数组的值是否在另一个数组里，返回一个布尔数组
+# np.linalg能用来做矩阵分解，以及比如转置和求秩之类的事情
+# X = np.round(np.random.randn(5, 5), 3) #用np.round控制小数点后的位数
+# X.T.dot(X)计算的是X和X的转置的矩阵乘法。
+
+# np.linalg能用来做矩阵分解，以及比如转置和求秩之类的事情
+# np.linalg.inv()：矩阵求逆
+# np.linalg.det()：矩阵求行列式（标量）
+# np.linalg.norm 求范数  norm(x, ord=None, axis=None, keepdims=False)
+# normal得到一个4 x 4的，符合标准正态分布的数组 np.random.normal(size=(4, 4))
+
+# np.random.seed(1)
+# 只要seed设置一样，每次生成的随机数是相同的
+# 这个seed是全局的，如果想要避免全局状态，可以用numpy.random.RandomState来创建一个独立的生成器
+# rng = np.random.RandomState(1234)
+# rng.randn(10)
+
+
+# argmax来计算，这个会返回布尔数组中最大值的索引(Ture是最大值)
+a = np.array([[1, 5, 5, 2],
+              [9, 6, 2, 8],
+              [3, 7, 9, 1]])
+# print(np.argmax(a, axis=0)) 行间比较 输出-array([1, 2, 2, 1])
+
+a = np.array([[1, 5, 5, 9],
+              [9, 6, 2, 8],
+              [3, 7, 9, 1]])
+# print(np.argmax(a, axis=1))  列间比较 输出array([3, 0, 2])
+
+# numpy.random.randint(low,high=None,size=None,dtype)
+# 生成在半开半闭区间[low,high)上离散均匀分布的整数值;若high=None，则取值区间变为[0,low)
+
+import pandas as pd
+
+# padndas
+sdata = {'Ohio': 35000, 'Texas': 71000, 'Oregon':16000, 'Utah': 5000}
+states = ['California', 'Ohio', 'Oregon', 'Texas']
+obj4 = pd.Series(sdata, index=states)
+# 顺序是按states里来的，但因为没有找到california,所以是NaN。NaN表示缺失数据,isnull和notnull函数可以用来检测缺失数据：
+
+# Series自身和它的index都有一个叫name的属性
+obj4.name = 'population'
+obj4.index.name = 'state'
+#
+# obj4
+# state
+# California        NaN
+# Ohio          35000.0
+# Oregon        16000.0
+# Texas         71000.0
+# Name: population, dtype: float64
+#
+# series的index能被直接更改：
+
+# 指定按列排序
+# pd.DataFrame(data, columns=['year', 'state', 'pop'])
+# 导入一个不存在的列名，那么会显示为缺失数据
+
+# 如果把list或array赋给column的话，长度必须符合DataFrame的长度。如果把一二series赋给DataFrame，会按DataFrame的index来赋值，不够的地方用缺失数据来表示
+# list赋值
+# frame2['debt'] = np.arange(6.)
+# series赋值
+# val = pd.Series([-1.2, -1.5, -1.7], index=['two', 'four', 'five'])
+# frame2['debt'] = val
+
+# frame3.T 可转置
+
+# DataFrame的index和column有自己的name属性，也会被显示
+# frame3.index.name = 'year'; frame3.columns.name = 'state'
+
+
+# pandas的Index Objects (索引对象)负责保存axis labels和其他一些数据（比如axis name或names）。一个数组或其他一个序列标签，只要被用来做构建series或DataFrame，就会被自动转变为index
+obj = pd.Series(range(3), index=['a', 'b', 'c'])
+index = obj.index
+# index -->Index(['a', 'b', 'c'], dtype='object')
+# index object是不可更改的
+# 正因为不可修改，所以data structure中分享index object是很安全的
+labels = pd.Index(np.arange(3))
+obj2 = pd.Series([1.5, -2.5, 0], index=labels)
+# obj2.index is labels -- >true
+
+
