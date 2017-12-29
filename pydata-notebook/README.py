@@ -399,3 +399,64 @@ obj2 = pd.Series([1.5, -2.5, 0], index=labels)
 # obj2.index is labels -- >true
 
 
+# reindex 重新索引
+# obj = pd.Series([4.5, 7.2, -5.3, 3.6], index=['d', 'b', 'a', 'c'])
+# d    4.5
+# b    7.2
+# a   -5.3
+# c    3.6
+# dtype: float64
+
+# 在series上调用reindex能更改index，如果没有对应index的话会引入缺失数据
+# obj2 = obj.reindex(['a', 'b', 'c', 'd', 'e'])
+
+# 在处理时间序列这样的数据时，我们可能需要在reindexing的时候需要修改值。method选项能做到这一点，比如设定method为ffill
+# obj3 = pd.Series(['bule', 'purple', 'yellow'], index=[0, 2, 4])
+# obj3.reindex(range(6), method='ffill')
+
+
+# 对于DataFrame，reindex能更改row index,或column index。reindex the rows
+frame = pd.DataFrame(np.arange(9).reshape(3, 3),
+                     index=['a', 'c', 'd'],
+                     columns=['Ohio', 'Texas', 'California'])
+# index
+frame2 = frame.reindex(['a', 'b', 'c', 'd'])
+
+# 列
+states = ['Texas', 'Utah', 'California']
+frame.reindex(columns=states)
+
+# 还可以使用loc更简洁的reindex
+frame.loc[['a', 'b', 'c', 'd'], states]
+
+
+# 对于series，drop会返回一个新的object，并删去你制定的axis的值
+# 对于DataFrame，index能按行或列的axis来删除
+# data.drop(['Colorado', 'Ohio']) 删除行
+# data.drop('two', axis=1) 列处理：drop列的话，设定axis=1或axis='columns':
+# data.drop(['two', 'four'], axis='columns')
+# obj.drop('c', inplace=True) drop也可以不返回一个新的object，而是直接更改series or dataframe in-place
+
+# loc and iloc. 这两个方法能通过axis labels(loc)或integer(iloc)，来选择行或列
+# data
+# 	       one	two	three	four
+# Ohio	    0	0	0	    0
+# Colorado	0	5	6	    7
+# Utah	    8	9	10	    11
+# New York	12	13	14	    15
+# data.loc['Colorado', ['two', 'three']] Colorado行的two three列值
+# data.iloc[1, [1, 2]] 同iloc实现相同的效果
+# 切片
+# data.loc[:'Utah', 'two'] 到'utah'行,取'two'列的值
+# data.iloc[:, :3][data.three > 5] 所有行的第0-2列 比data.three大于5的
+
+
+# pandas在整数索引上可能会出错,如果用非整数来做index，就没有歧义了
+# ser2 = pd.Series(np.arange(3.), index=['a', 'b', 'c'])
+# ser2[-1]
+# ser[:1]
+# df1.add(df2, fill_value=0)
+# df1.reindex(columns=df2.columns, fill_value=0)  reindex（重建索引）的时候，也可以使用fill_value
+# 1 / df1  -- > 逆运算  df1.rdiv(1)
+
+
