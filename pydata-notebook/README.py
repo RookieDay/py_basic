@@ -512,4 +512,26 @@ obj.index.is_unique
 df = pd.DataFrame(np.random.randn(4, 3), index=['a', 'a', 'b', 'b'])
 df.loc['b']
 
+# 可以用skipna来跳过计算NA
+df = pd.DataFrame([[1.4, np.nan], [7.1, -4.5],
+                   [np.nan, np.nan], [0.75, -1.3]],
+                  index=['a', 'b', 'c', 'd'],
+                  columns=['one', 'two'])
+df.mean(axis=1, skipna=False)
 
+# idxmin和idxmax，能返回间接的统计值，比如index value
+# df.idxmax() 最大值索引
+#     one   two
+# a	1.40	NaN
+# b	7.10	-4.5
+# c	NaN	    NaN
+# d	0.75	-1.3
+# df.idxmax()
+# one    b
+# two    d
+# dtype: object
+
+# describe能一下子产生多维汇总数据
+# pct_change(): 这个函数用来计算同colnums两个相邻的数字之间的变化率
+# series的corr方法计算两个，重合的，非NA的，通过index排列好的series。cov计算方差
+# 用Dataframe的corrwith方法，我们可以计算dataframe中不同columns之间，或row之间的相似性。传递一个series
