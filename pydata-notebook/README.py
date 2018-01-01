@@ -535,3 +535,67 @@ df.mean(axis=1, skipna=False)
 # pct_change(): 这个函数用来计算同colnums两个相邻的数字之间的变化率
 # series的corr方法计算两个，重合的，非NA的，通过index排列好的series。cov计算方差
 # 用Dataframe的corrwith方法，我们可以计算dataframe中不同columns之间，或row之间的相似性。传递一个series
+
+# pd.read_table('../examples/ex1.csv', sep=',') sep指定分割符
+# 读取没有header的文件  pd.read_csv('../examples/ex2.csv', header=None)
+# 可以为其设置列名:pd.read_csv('../examples/ex2.csv', names=['a', 'b', 'c', 'd', 'message'])
+# 可以传入一个正则表达式给read_table来代替分隔符。用正则表达式为\s+ result = pd.read_table('../examples/ex3.txt', sep='\s+')
+# pd.read_csv('../examples/ex4.csv', skiprows=[0, 2, 3]) 跳过不规整的数据
+# 对于缺失值，pandas使用一些sentinel value(标记值)来代表，比如NA和NULL pd.isnull(result)
+# na_values选项能把我们传入的字符识别为NA，导入必须是list result = pd.read_csv('../examples/ex5.csv', na_values=['NULL'])
+# 可以给不同的column设定不同的缺失值标记符，这样的话需要用到dict
+sentinels = {'message': ['foo', 'NA'],
+             'something': ['two']}
+# 把message列中的foo和NA识别为NA，把something列中的two识别为NA
+pd.read_csv('../examples/ex5.csv', na_values=sentinels)
+
+
+# pd.read_csv('../examples/ex6.csv', nrows=5) 读取前几行（不读取整个文件），指定一下nrows
+# 读取文件的一部分，可以指定chunksize chunker = pd.read_csv('../examples/ex6.csv', chunksize=1000)
+# pandas返回的TextParser object能让我们根据chunksize每次迭代文件的一部分。比如，我们想要迭代ex6.csv, 计算key列的值的综合
+chunker = pd.read_csv('../examples/ex6.csv', chunksize=1000)
+
+tot = pd.Series([])
+for piece in chunker:
+    tot = tot.add(piece['key'].value_counts(), fill_value=0)
+
+tot = tot.sort_values(ascending=False)
+# TextParser有一个get_chunk方法，能返回任意大小的数据片段： chunker.get_chunk(10)
+
+# data.to_csv(sys.stdout, sep='|')
+# 缺失值会以空字符串打印出来，我们可以自己设定缺失值的指定符  data.to_csv(sys.stdout, na_rep='NULL')
+# 如果不指定，行和列会被自动写入。当然也可以设定为不写入  data.to_csv(sys.stdout, index=False, header=False)
+# 可以指定只读取一部分列，并按你选择的顺序读取 data.to_csv(sys.stdout, index=False, columns=['a', 'b', 'c'])
+
+
+# 有时候需要人为处理的数据
+# header, values = lines[0], lines[1:]
+# data_dict = {h: v for h, v in zip(header, zip(*values))}
+# print([x for x in zip(*values)])
+
+# CSV有很多功能。我们可以定义一个新的分隔符格式，比如字符串的引号，行结束时的回车，这里我们利用csv.Dialect来构造一个子类
+# class my_dialect(csv.Dialect):
+#     lineterminator = '\n'
+#     delimiter = ';'
+#     quotechar = '"'
+#     quoting = csv.QUOTE_MINIMAL
+#
+# f = open('../examples/ex7.csv')
+# reader = csv.reader(f, dialect=my_dialect)
+# 也可以设定一个分隔符参数给csv.reader，而不用单独定义一个子类 csv.reader(f, delimiter='|')
+
+# pandas.read_html函数有很多额外选项，但是默认会搜索并试图解析含有<tagble>tag的表格型数据。结果是a list of dataframe:
+# json/csv
+# close_timestamps = pd.to_datetime(failures['Closing Date'])
+# close_timestamps.dt.year.value_counts()
+
+# 使用lxml.objectify,我们可以解析文件，通过getroot，得到一个指向XML文件中root node的指针
+# from lxml import objectify
+#
+# parsed = objectify.parse(open(path))
+# root = parsed.getroot()
+
+# 解析root 循环children 放入data = [] 然后变为DataFrame
+# perf = pd.DataFrame(data)
+# perf.head()
+
