@@ -599,3 +599,116 @@ tot = tot.sort_values(ascending=False)
 # perf = pd.DataFrame(data)
 # perf.head()
 
+# 用内建的pickle可以直接读取任何pickle文件，或者直接用pandas.read_pickle
+# pickle只推荐用于短期存储。因为这种格式无法保证长期稳定；比如今天pickled的一个文件，可能在库文件更新后无法读取。
+
+# HDFStore支持两种存储架构，fixed和table。后者通常更慢一些，但支持查询操作
+# store = pd.HDFStore('../examples/mydata.h5')
+# store.put('obj2', frame, format='table')
+# store.select('obj2', where=['index >= 10 and index <= 15'])
+# pd.read_hdf('./examples/mydata.h5', 'obj3', where=['index < 5'])
+# 注意：HDF5不是数据库（database）。它最适合一次写入，多次读取的数据库。尽管数据可以在任何时间多次写入一个文件，如果多个使用者同时写入的话，文件会被破坏。
+
+# 读取excel xlsx = pd.ExcelFile('../examples/ex1.xlsx')  ->pd.read_excel(xlsx, 'Sheet1')
+# 读取sheet frame = pd.read_excel('../examples/ex1.xlsx', 'Sheet1')
+# pandas数据写为Excel格式  writer = pd.ExcelWriter('../examples/ex2.xlsx') frame.to_excel(writer, 'Sheet1') writer.save()
+# 如果不适用ExcelWriter的话，可以直接传给to_excel一个path：frame.to_excel('../examples/ex2.xlsx')
+
+# import requests
+# url = 'https://api.github.com/repos/pandas-dev/pandas/issues'
+# resp = requests.get(url)
+# data = resp.json()
+# # 提取感兴趣信息
+# issues = pd.DataFrame(data, columns=['number', 'title',
+#                                     'labels', 'state'])
+# issues
+
+# 数据库 sqlite3
+import sqlite3
+query = """
+CREATE TABLE test
+(a VARCHAR(20), b VARCHAR(20),
+ c REAL,        d INTEGER
+);"""
+con = sqlite3.connect('./examples/mydata.sqlite')
+con.execute(query)
+con.commit()
+cursor = con.execute('select * from test')
+rows = cursor.fetchall()
+# 使用sqlalchemy
+
+# 处理缺失值 内建的Python None值也被当做NA
+# string_data.isnull()
+# data = pd.Series([1, NA, 3.5, NA, 7])
+# data.dropna()  等价于--> data[data.notnull()]
+# dropna默认会删除包含有缺失值的row
+# data.dropna(how='all') how=all只会删除那些全是NA的行
+# 删除列也一样，设置axis=1 data.dropna(axis=1, how='all')
+
+# 保留有特定数字的观测结果，可以使用thresh参数
+from numpy import nan as NA
+df = pd.DataFrame(np.random.randn(7, 3))
+df.iloc[:4, 1] = NA
+df.iloc[:2, 2] = NA
+df.dropna()
+df.dropna(thresh=2)
+
+df.fillna(0)
+df.fillna({1: 0.5, 2: 0}) #给fillna传入一个dict，可以给不同列替换不同的值
+_ = df.fillna(0, inplace=True) # fillna返回一个新对象，但你可以使用in-place来直接更改原有的数据
+df.fillna(method='ffill')
+df.fillna(method='ffill', limit=2)
+
+data = pd.Series([1., NA, 3.5, NA, 7])
+data.fillna(data.mean()) #可以传入一个series的平均值或中位数
+
+# 删除重复行
+data = pd.DataFrame({'k1': ['one', 'two'] * 3 + ['two'],
+                     'k2': [1, 1, 2, 3, 3, 4, 4]})
+data.duplicated() #duplicated返回的是一个boolean Series，表示一个row是否是重复的（根据前一行来判断）
+data.drop_duplicates() # drop_duplicateds返回一个DataFrame，会删除重复的部分
+data.drop_duplicates(['k1', 'k2'], keep='last') # 设置keep='last'能返回最后一个
+
+
+# 函数映射  使用map函数  方便很多
+# data['food'].map(lambda x: meat_to_animal[x.lower()])
+# 替换 data.replace(-999, np.nan)
+# data.replace([-999, -1000], np.nan) 如果想要一次替换多个值，直接用一个list
+# data.replace({-999: np.nan, -1000: 0})
+
+data = pd.DataFrame(np.arange(12).reshape((3, 4)),
+                    index=['Ohio', 'Colorado', 'New York'],
+                    columns=['one', 'two', 'three', 'four'])
+transform = lambda x: x[:4].upper()
+data.index = data.index.map(transform)
+
+# 创建一个转换后的版本，而且不用修改原始的数据，可以用rename
+data.rename(index=str.title, columns=str.upper)
+# rename能用于dict一样的oject
+data.rename(index={'OHIO': 'INDIANA'},
+            columns={'three': 'pekaboo'})
+# 可以用inplace直接修改原始数据
+data.rename(index={'OHIO': 'INDIANA'}, inplace=True)
+
+
+ages = [20, 22, 25, 27, 21, 23, 37, 31, 61, 45, 41, 32]
+# 把这些分到四个bin里，19~25, 26~35, 36~60, >60。可以用pandas里的cut
+bins = [18, 25, 35, 60, 100]
+cats = pd.cut(ages, bins)
+# [(18, 25], (18, 25], (18, 25], (25, 35], ...
+# Length: 12
+# Categories (4, object): [(18, 25] < (25, 35] < (35, 60] < (60, 100]]
+# 返回的是一个特殊的Categorical object,结果描述了pandas.cut如何得到bins。可以看作是一个string数组用来表示bin的名字，它内部包含了一个categories数组，用来记录不同类别的名字，并伴有表示ages的label（
+cats.codes #表示ages的label
+cats.categories
+pd.value_counts(cats) #pd.value_counts(cats)是pandas.cut后bin的数量
+# 括号表示不包含，方括号表示包含。你可以自己设定哪一边关闭（right=False）
+# pd.cut(ages, [18, 26, 36, 61, 100], right=False)
+# 输出
+# [[18, 26), [18, 26), [18, 26), [26, 36), [18, 26), ..., [26, 36), [61, 100), [36, 61), [36, 61), [26, 36)]
+# Length: 12
+# Categories (4, object): [[18, 26) < [26, 36) < [36, 61) < [61, 100)]
+
+group_names = ['Youth', 'YoungAdult', 'MiddleAged', 'Senior']
+pd.cut(ages, bins, labels=group_names)
+
