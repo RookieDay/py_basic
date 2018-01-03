@@ -712,3 +712,35 @@ pd.value_counts(cats) #pd.value_counts(cats)是pandas.cut后bin的数量
 group_names = ['Youth', 'YoungAdult', 'MiddleAged', 'Senior']
 pd.cut(ages, bins, labels=group_names)
 
+
+# 如果你只是给一个bins的数量来cut，而不是自己设定每个bind的范围，cut会根据最大值和最小值来计算等长的bins。比如下面我们想要做一个均匀分布的四个bins
+pd.cut(data, 4, precision=2)  # 表示数据分为4个均匀分布的bins
+
+# 一个近似的函数，qcut，会按照数据的分位数来分箱。取决于数据的分布，用cut通常不能保证每一个bin有一个相同数量的数据点。而qcut是按百分比来切的，所以可以得到等数量的bins
+cats = pd.qcut(data, 4) # Cut into quartiles
+
+cats2 = pd.cut(data, [0, 0.1, 0.5, 0.9, 1.]) # 累进的百分比 在cut中我们可以自己指定百分比
+
+
+data = pd.DataFrame(np.random.randn(1000, 4))
+data.describe()
+col = data[2]
+col[np.abs(col) > 3]
+
+# 选中所有绝对值大于3的行，可以用any方法在一个boolean DataFrame上
+data[(np.abs(data) > 3)].head()
+data[(np.abs(data) > 3).any(1)] # any中axis=1表示column
+data[np.abs(data) > 3] = np.sign(data) * 3 # 绝对值大于3的数字直接变成-3或3
+np.sign(data).head() # np.sign(data)会根据值的正负号来得到1或-1
+
+
+# 排列（随机排序）一个series或DataFrame中的row，用numpy.random.permutation函数很容易就能做到。调用permutation的时候设定好你想要进行排列的axis，会产生一个整数数组表示新的顺序
+df = pd.DataFrame(np.arange(5 * 4).reshape((5, 4)))
+# 这个数组能被用在基于iloc上的indexing或take函数
+sampler = np.random.permutation(5) #array([4, 3, 2, 1, 0])
+df.take(sampler) #df会根据sampler打乱索引排列
+# 为了选中一个随机的子集，而且没有代替功能(既不影响原来的值，返回一个新的series或DataFrame)，可以用sample方法
+df.sample(n=3)  #会随机选择三行
+# 如果想要生成的样本带有替代功能(即允许重复)，给sample中设定replace=True
+choices = pd.Series([5, 7, -1, 6, 4])
+draws = choices.sample(n=10, replace=True)
