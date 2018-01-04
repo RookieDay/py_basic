@@ -744,3 +744,179 @@ df.sample(n=3)  #会随机选择三行
 # 如果想要生成的样本带有替代功能(即允许重复)，给sample中设定replace=True
 choices = pd.Series([5, 7, -1, 6, 4])
 draws = choices.sample(n=10, replace=True)
+
+
+# 如果DataFrame中的一列有k个不同的值，我们可以用一个矩阵或DataFrame用k列来表示，1或0。pandas有一个get_dummies函数实现这个工作，当然，你自己设计一个其实也不难。
+df = pd.DataFrame({'key': ['b', 'b', 'a', 'c', 'a', 'b'],
+                   'data1': range(6)})
+#
+# data1	key
+# 0	0	b
+# 1	1	b
+# 2	2	a
+# 3	3	c
+# 4	4	a
+# 5	5	b
+
+# 对于上面的key列 0 1 来分
+pd.get_dummies(df['key'])
+#
+#     a	b	c
+# 0	0.0	1.0	0.0
+# 1	0.0	1.0	0.0
+# 2	1.0	0.0	0.0
+# 3	0.0	0.0	1.0
+# 4	1.0	0.0	0.0
+# 5	0.0	1.0	0.0
+
+# 如果我们想要给column加一个prefix， 可以用data.get_dummies里的prefix参数来实现
+dummies = pd.get_dummies(df['key'], prefix='key')
+df_with_dummy = df[['data1']].join(dummies)
+
+
+# 假如我们这里操作一个数据集，某一列它里面类别有很多
+mnames = ['movie_id', 'title', 'genres']
+movies = pd.read_table('./datasets/movielens/movies.dat', sep='::',
+                       header=None, names=mnames, engine='python')
+movies[:10]
+
+# 获取所有的类别放在数组里面
+all_genres = []
+
+for x in movies.genres:
+    all_genres.extend(x.split('|'))
+# 类别去重
+genres = pd.unique(all_genres)
+
+# 构建一个全是0的 DataFrame，并且列为不同的类别
+zero_matrix = np.zeros((len(movies), len(genres)))
+dummies = pd.DataFrame(zero_matrix, columns=genres)
+dummies.head()
+
+# 循环类别 在dummies 获取对应的下标位置是哪个 ，使用.iloc，根据索引来设定值
+for i, gen in enumerate(movies.genres):
+    indices = dummies.columns.get_indexer(gen.split('|'))
+    dummies.iloc[i, indices] = 1
+
+# 然后我原来的结合在一起
+movies_windic = movies.join(dummies.add_prefix('Genre_'))
+movies_windic.iloc[0]
+
+
+# 对于一个很大的数据集，这种构建多个成员指示变量的方法并不会加快速度。写一个低层级的函数来直接写一个numpy array，并把写过整合到DataFrame会更快一些
+np.random.seed(12345)
+values = np.random.randn(10)
+bins = [0,0.2,0.4,0.6,0.8,1.]
+pd.get_dummies(pd.cut(values,bins))
+
+
+# 当调用re.split('\s+', text)的时候，正则表达式第一次被compile编译，并且split方法会被调用搜索text。我们可以自己编译regex，用re.compile，可以生成一个可以多次使用的regex object
+# re.split('\s+', text)
+# import re
+# regex = re.compile('\s+')
+# regex.split(text)
+
+# match和search，与findall关系紧密。不过findall会返回所有匹配的结果，而search只会返回第一次匹配的结果 更严格地说，match只匹配string开始的部分。
+# re.IGNORECASE makes the regex case-insensitive
+# regex = re.compile(pattern, flags=re.IGNORECASE)
+# regex.findall(text) 使用findall找到一组
+
+
+# 而sub返回一个新的string，把pattern出现的地方替换为我们指定的string
+# print(regex.sub('REDACTED', text))
+
+# search返回text中的第一个匹配结果。match object能告诉我们找到的结果在text中开始和结束的位置
+# m = regex.search(text)
+# text[m.start():m.end()]
+# regex.match返回None，因为它只会在pattern存在于stirng开头的情况下才会返回匹配结果
+
+# m = regex.match('wesm@bright.net')
+# m.groups()
+# \1表示第一个匹配的group，\2表示第二个匹配的group
+# print(regex.sub(r'Username: \1, Domain: \2, Suffix: \3', text))
+
+
+# 可以把一些字符串方法和正则表达式（用lambda或其他函数）用于每一个value上，通过data.map，但是这样会得到NA(null)值。为了解决这个问题，series有一些数组导向的方法可以用于字符串操作，来跳过NA值。这些方法可以通过series的str属性；比如，我们想检查每个电子邮箱地址是否有'gmail' with str.contains:
+# data = pd.Series(data)
+# data.str.findall(pattern, flags=re.IGNORECASE)
+#
+# matches = data.str.match(pattern, flags=re.IGNORECASE)
+# matches.str.get(0)
+# data.str[:5]
+
+
+# 分层索引的数据
+data = pd.Series(np.random.randn(9),
+                 index=[['a', 'a', 'a', 'b', 'b', 'c', 'c', 'd', 'd'],
+                        [1, 2, 3, 1, 3, 1, 2, 2, 3]])
+# data
+# Out[4]:
+# a  1    0.636082
+#    2   -1.413061
+#    3   -0.530704
+# b  1   -0.041634
+#    3   -0.042303
+# c  1    0.429911
+#    2    0.783350
+# d  2    0.284328
+#    3   -0.360963
+# dtype: float64
+data['b': 'c']
+data.loc[['b','d']]
+data.loc[:, 2]
+# Out[9]:
+# a   -1.413061
+# c    0.783350
+# d    0.284328
+# dtype: float64
+
+# 分层索引的作用是改变数据的形状，以及做一些基于组的操作（group-based）比如做一个数据透视表（pivot table）。例子，我们可以用unstack来把数据进行重新排列，产生一个DataFrame
+data.unstack()
+#         1	        2	        3
+# a	0.636082	    -1.413061	-0.530704
+# b	-0.041634	    NaN	        -0.042303
+# c	0.429911	    0.783350	NaN
+# d	NaN	            0.284328	-0.360963
+
+# 相反的操作是stack:
+data.unstack().stack()
+
+
+frame = pd.DataFrame(np.arange(12).reshape((4, 3)),
+                     index=[['a', 'a', 'b', 'b'], [1, 2, 1, 2]],
+                     columns=[['Ohio', 'Ohio', 'Colorado'],
+                              ['Green', 'Red', 'Green']])
+frame
+
+# 	Ohio	Colorado
+#   Green	Red	Green
+# a	1	0	1	2
+#   2	3	4	5
+# b	1	6	7	8
+#   2	9	10	11
+
+# 每一层级都可以有一个名字（字符串或任何python对象）。如果有的话，这些会显示在输出中
+frame.index.names = ['key1','key2']
+frame.columns.names = ['state','color']
+
+#       state	        Ohio	Colorado
+#       color	Green	Red	    Green
+#key1	key2
+# a	    1	    0	    1	    2
+#       2	    3       4	    5
+# b	    1	    6	    7	    8
+#       2	    9	    10  	11
+
+# 如果想要选中部分列(partial column indexing)的话，可以选中一组列（groups of columns）
+frame['Ohio']
+# 	    color	Green	Red
+# key1	key2
+# a	    1	    0	    1
+#       2	    3	    4
+# b   	1	    6	    7
+#       2	    9	    10
+
+# MultiIndex能被同名函数创建，而且可以重复被使用；在DataFrame中给列创建层级名可以通过以下方式
+pd.MultiIndex.from_arrays([['Ohio', 'Ohio', 'Colorado'], ['Green', 'Red', 'Green']],
+                      names=['state', 'color'])
+
