@@ -920,3 +920,122 @@ frame['Ohio']
 pd.MultiIndex.from_arrays([['Ohio', 'Ohio', 'Colorado'], ['Green', 'Red', 'Green']],
                       names=['state', 'color'])
 
+# swaplevel会取两个层级编号或者名字，并返回一个层级改变后的新对象（数据本身并不会被改变）：
+frame.swaplevel('key1','key2')
+
+# level指的是key1和key2，key1是level=0，key2是level=1。
+frame.sort_index(level=1)
+#       state	Ohio	    Colorado
+#       color	Green	Red	Green
+# key1	key2
+# a	    1	    0	    1	2
+#       2	    3	    4	5
+# b	    1	    6	    7	8
+#       2	    9	    10	11
+frame.swaplevel(0, 1).sort_index(level=0) # 把key1余key2交换后，按key2来排序
+
+frame.sum(level='key2')
+frame.sum(level='color', axis=1)
+
+# DataFrame的set_index会把列作为索引，并创建一个新的DataFram
+frame = pd.DataFrame({'a': range(7), 'b': range(7, 0, -1),
+                      'c': ['one', 'one', 'one', 'two', 'two',
+                            'two', 'two'],
+                      'd': [0, 1, 2, 0, 1, 2, 3]})
+# 默认删除原先的列 但是也可以保留
+frame2 = frame.set_index(['c','d'])
+frame.set_index(['d','c'],drop=False)
+
+# reset_index的功能与set_index相反，它会把多层级索引变为列
+frame2.reset_index()
+
+
+
+df1 = pd.DataFrame({'key': ['b', 'b', 'a', 'c', 'a', 'a', 'b'],
+                    'data1': range(7)})
+df2 = pd.DataFrame({'key': ['a', 'b', 'd'],
+                    'data2': range(3)})
+# 并没有指定按哪一列来连接。如果我们没有指定，merge会用两个对象中都存在的列名作为key（键）
+pd.merge(df1, df2)
+pd.merge(df1, df2, on='key')
+
+# 如果每一个对象中的列名不一会，我们可以分别指定
+df3 = pd.DataFrame({'lkey': ['b', 'b', 'a', 'c', 'a', 'a', 'b'],
+                             'data1': range(7)})
+
+df4 = pd.DataFrame({'rkey': ['a', 'b', 'd'],
+                             'data2': range(3)})
+pd.merge(df3, df4, left_on='lkey', right_on='rkey')
+# merge默认是inner join(内连接)，结果中的key是交集的结果，或者在两个表格中都有的集合。其他一些可选项，比如left, right, outer。outer join（外连接）取key的合集，其实就是left join和right join同时应用的效果
+pd.merge(df1, df2, how='outer')
+
+
+# many-to-many join是对行进行笛卡尔集运算。（两个集合X和Y的笛卡儿积（Cartesian product），又称直积，在集合论中表示为X × Y，是所有可能的有序对组成的集合。比如1到13是一个集合，四种花色是一个集合，二者的笛卡尔积就有52个元素）。这里在左侧的DataFrame中有三行含b，右边的DataFrame则有两行含b，于是结果是有六行含b。这个join方法只会让不相同的key值出现在最后的结果里
+df1 = pd.DataFrame({'key': ['b', 'b', 'a', 'c', 'a', 'b'],
+                    'data1': range(6)})
+df2 = pd.DataFrame({'key': ['a', 'b', 'a', 'b', 'd'],
+                    'data2': range(5)})
+
+pd.merge(df1, df2, on='key', how='left')
+
+# 用多个key来连接的话，用一个含有多个列名的list来指定
+left = pd.DataFrame({'key1': ['foo', 'foo', 'bar'],
+                     'key2': ['one', 'two', 'one'],
+                     'lval': [1, 2, 3]})
+
+right = pd.DataFrame({'key1': ['foo', 'foo', 'bar', 'bar'],
+                      'key2': ['one', 'one', 'one', 'two'],
+                      'rval': [4, 5, 6, 7]})
+pd.merge(left, right, on=['key1', 'key2'], how='outer')
+
+
+# 在做merge操作的时候，如何处理重叠的列名。当我们想要手动去解决重叠问题时（参考重命名axis labels的部分），merge有一个suffixes选项，能让我们指定字符串，添加重叠的列名到左、右DataFrame
+pd.merge(left, right, on='key1')
+
+
+# concat
+s1 = pd.Series([0, 1], index=['a', 'b'])
+
+s2 = pd.Series([2, 3, 4], index=['c', 'd', 'e'])
+
+s3 = pd.Series([5, 6], index=['f', 'g'])
+pd.concat([s1,s2,s3],axis=1)
+
+# join_axes中指定使用哪些轴
+pd.concat([s1, s4], axis=1, join_axes=[['a', 'c', 'b', 'e']])
+
+# 一个潜在的问题是串联的部分在结果里是不可辨识的。假设我们想在串联轴上创建一个多层级索引，我们需要用到keys参数
+result = pd.concat([s1, s1, s3], keys=['one', 'two', 'three'])
+result.unstack()
+
+a = pd.Series([np.nan, 2.5, np.nan, 3.5, 4.5, np.nan],
+              index=['f', 'e', 'd', 'c', 'b', 'a'])
+b = pd.Series(np.arange(len(a), dtype=np.float64),
+              index=['f', 'e', 'd', 'c', 'b', 'a'])
+np.where(pd.isnull(a), b, a)
+# Series有一个combine_first方法，效果和上面是一样，而且还会自动对齐（比如把index按字母进行排列）：
+b[:-2].combine_first(a[2:])
+
+# 对于DataFrame， combine_first可以在列与列之间做到同样的事情，可以认为是用传递的对象，给调用对象中的缺失值打补丁
+df1 = pd.DataFrame({'a': [1., np.nan, 5., np.nan],
+                    'b': [np.nan, 2., np.nan, 6.],
+                    'c': range(2, 18, 4)})
+df2 = pd.DataFrame({'a': [5., 4., np.nan, 3., 7.],
+                    'b': [np.nan, 3., 4., 6., 8.]})
+df1.combine_first(df2)
+
+# 如果某个层级里的值不能在subgroup(子组)里找到的话，unstack可能会引入缺失值
+s1 = pd.Series([0, 1, 2, 3], index=['a', 'b', 'c', 'd'])
+
+s2 = pd.Series([4, 5, 6], index=['c', 'd', 'e'])
+
+data2 = pd.concat([s1, s2], keys=['one', 'two'])
+data2.unstack()
+# stack默认会把缺失值过滤掉，所以这两种操作是可逆的
+data2.unstack().stack()
+data2.unstack().stack(dropna=False)
+
+df = pd.DataFrame({'left': result, 'right': result + 5},
+                  columns=pd.Index(['left', 'right'], name='side'))
+df # 行的话，有state和number两个层级，number是内层级。而列的话有side这一个层级
+df.unstack('state')  # state被unstack后，变为比side更低的层级
